@@ -17,6 +17,7 @@
 
 package com.cloud.network;
 
+import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -526,7 +527,7 @@ public class NetworkModelImpl extends ManagerBase implements NetworkModel {
         		return false;
         	}
         	if (network.getIp6Gateway() != null) {
-        		hasFreeIps = isIP6AddressAvailable(network);
+        		hasFreeIps = isIP6AddressAvailableInNetwork(network.getId());
         	}
         } else {
             hasFreeIps = (getAvailableIps(network, null)).size() > 0;
@@ -536,23 +537,30 @@ public class NetworkModelImpl extends ManagerBase implements NetworkModel {
     }
 
     @Override
-    public Vlan getVlanForNetwork(long networkId) {
-    	List<VlanVO> vlans = _vlanDao.listVlansByNetworkId(networkId);
-    	if (vlans == null || vlans.size() > 1) {
-    		s_logger.debug("Cannot find related vlan or too many vlan attached to network " + networkId);
-    		return null;
+    public boolean isIP6AddressAvailableInNetwork(long networkId) {
+    	Network network = _networksDao.findById(networkId);
+    	if (network == null) {
+    		return false;
     	}
-    	return vlans.get(0);
-    }
-   
-    private boolean isIP6AddressAvailable(Network network) {
     	if (network.getIp6Gateway() == null) {
     		return false;
     	}
-    	Vlan vlan = getVlanForNetwork(network.getId());
-    	long existedCount = _ipv6Dao.countExistedIpsInNetwork(network.getId());
-    	long rangeCount = NetUtils.countIp6InRange(vlan.getIp6Range());
-		return (existedCount < rangeCount);
+    	List<VlanVO> vlans = _vlanDao.listVlansByNetworkId(networkId);
+    	for (Vlan vlan : vlans) {
+    		if (isIP6AddressAvailableInVlan(vlan.getId())) {
+    			return true;
+    		}
+    	}
+		return false;
+	}
+
+    @Override
+    public boolean isIP6AddressAvailableInVlan(long vlanId) {
+    	VlanVO vlan = _vlanDao.findById(vlanId);
+    	long existedCount = _ipv6Dao.countExistedIpsInVlan(vlanId);
+    	BigInteger existedInt = BigInteger.valueOf(existedCount);
+    	BigInteger rangeInt = NetUtils.countIp6InRange(vlan.getIp6Range());
+		return (existedInt.compareTo(rangeInt) < 0);
 	}
 
     @Override
