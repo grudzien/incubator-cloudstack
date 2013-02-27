@@ -20,6 +20,8 @@ import java.text.DecimalFormat;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.cloudstack.affinity.AffinityGroup;
+import org.apache.cloudstack.affinity.AffinityGroupResponse;
 import org.apache.cloudstack.api.ApiConstants.HostDetails;
 import org.apache.cloudstack.api.ApiConstants.VMDetails;
 import org.apache.cloudstack.api.command.user.job.QueryAsyncJobResultCmd;
@@ -380,9 +382,11 @@ public interface ResponseGenerator {
     GuestOSResponse createGuestOSResponse(GuestOS os);
 
     SnapshotScheduleResponse createSnapshotScheduleResponse(SnapshotSchedule sched);
-    
+
     UsageRecordResponse createUsageResponse(Usage usageRecord);
 
     TrafficMonitorResponse createTrafficMonitorResponse(Host trafficMonitor);
     VMSnapshotResponse createVMSnapshotResponse(VMSnapshot vmSnapshot);
+
+    AffinityGroupResponse createAffinityGroupResponse(AffinityGroup group);
 }
