@@ -102,7 +102,7 @@
                     <filterreader
                       classname="org.apache.tools.ant.filters.ReplaceTokens">
                       <param type="propertiesfile"
-                        value="${cs.replace.properties}" />
+                        value="${basedir}/../build/replace.properties" />
                     </filterreader>
                   </filterchain>
                 </copy>
@@ -118,7 +118,7 @@
                     <filterreader
                       classname="org.apache.tools.ant.filters.ReplaceTokens">
                       <param type="propertiesfile"
-                        value="${cs.replace.properties}" />
+                        value="${basedir}/../build/replace.properties" />
                     </filterreader>
                   </filterchain>
                 </copy>
