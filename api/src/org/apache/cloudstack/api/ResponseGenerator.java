@@ -389,4 +389,6 @@ public interface ResponseGenerator {
     VMSnapshotResponse createVMSnapshotResponse(VMSnapshot vmSnapshot);
 
     AffinityGroupResponse createAffinityGroupResponse(AffinityGroup group);
+
+    Long getAffinityGroupId(String name, long entityOwnerId);
 }
