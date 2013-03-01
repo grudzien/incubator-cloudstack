@@ -131,6 +131,7 @@ known_categories = {
     'Counter': 'AutoScale',
     'Condition': 'AutoScale',
     'Api': 'API Discovery',
+    'Simulator': 'Simulator',
     'Region': 'Region',
     }
 
