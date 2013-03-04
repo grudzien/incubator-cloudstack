@@ -2110,6 +2110,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(DestroyVMCmd.class);
         cmdList.add(GetVMPasswordCmd.class);
         cmdList.add(ListVMsCmd.class);
+        cmdList.add(ScaleVMCmd.class);
         cmdList.add(RebootVMCmd.class);
         cmdList.add(RemoveNicFromVMCmd.class);
         cmdList.add(ResetVMPasswordCmd.class);
@@ -2165,6 +2166,9 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
         cmdList.add(CreateVMSnapshotCmd.class);
         cmdList.add(RevertToSnapshotCmd.class);
         cmdList.add(DeleteVMSnapshotCmd.class);
+        cmdList.add(AddIpToVmNicCmd.class);
+        cmdList.add(RemoveIpFromVmNicCmd.class);
+        cmdList.add(ListNicsCmd.class);
         return cmdList;
     }
 

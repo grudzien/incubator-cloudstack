@@ -113,7 +113,6 @@ Requires: libvirt
 Requires: bridge-utils
 Requires: ebtables
 Requires: jsvc
-Requires: jna
 Requires: jakarta-commons-daemon
 Requires: jakarta-commons-daemon-jsvc
 Provides: cloud-agent
@@ -318,6 +317,10 @@ if [ ! -f %{_datadir}/cloudstack-common/scripts/vm/hypervisor/xenserver/vhd-util
     echo Please download vhd-util from http://download.cloud.com.s3.amazonaws.com/tools/vhd-util and put it in 
     echo %{_datadir}/cloudstack-common/scripts/vm/hypervisor/xenserver/
 fi
+
+# change cloud user's home to 4.1+ version if needed. Would do this via 'usermod', but it
+# requires that cloud user not be in use, so RPM could not be installed while management is running
+getent passwd cloud | grep -q /var/lib/cloud && sed -i 's/\/var\/lib\/cloud\/management/\/var\/cloudstack\/management/g' /etc/passwd
 
 %post awsapi
 if [ -d "%{_datadir}/%{name}-management" ] ; then

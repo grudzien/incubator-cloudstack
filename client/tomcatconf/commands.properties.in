@@ -66,6 +66,7 @@ listVirtualMachines=15
 getVMPassword=15
 restoreVirtualMachine=15
 changeServiceForVirtualMachine=15
+scaleVirtualMachine=15
 assignVirtualMachine=1
 migrateVirtualMachine=1
 recoverVirtualMachine=7
@@ -325,6 +326,11 @@ updateNetwork=15
 addNicToVirtualMachine=15
 removeNicFromVirtualMachine=15
 updateDefaultNicForVirtualMachine=15
+
+####
+addIpToNic=15;
+removeIpFromNic=15;
+listNics=15;
 
 #### SSH key pair commands
 registerSSHKeyPair=15
