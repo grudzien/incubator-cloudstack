@@ -34,6 +34,9 @@ import javax.naming.ConfigurationException;
 
 import org.apache.cloudstack.acl.ControlledEntity.ACLType;
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
+import org.apache.cloudstack.affinity.AffinityGroupVO;
+import org.apache.cloudstack.affinity.dao.AffinityGroupDao;
+import org.apache.cloudstack.affinity.dao.AffinityGroupVMMapDao;
 import org.apache.cloudstack.api.command.admin.vm.AssignVMCmd;
 import org.apache.cloudstack.api.command.admin.vm.RecoverVMCmd;
 import org.apache.cloudstack.api.command.user.vm.AddNicToVMCmd;
@@ -376,7 +379,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
     VpcManager _vpcMgr;
     @Inject
     TemplateManager templateMgr;
-    @Inject 
+    @Inject
     protected GuestOSCategoryDao _guestOSCategoryDao;
     @Inject
     UsageEventDao _usageEventDao;
@@ -384,6 +387,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
     protected VMSnapshotDao _vmSnapshotDao;
     @Inject
     protected VMSnapshotManager _vmSnapshotMgr;
+
+    @Inject
+    AffinityGroupVMMapDao _affinityGroupVMMapDao;
+    @Inject
+    AffinityGroupDao _affinityGroupDao;
 
     @Inject
     List<DeployPlannerSelector> plannerSelectors;
@@ -690,7 +698,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
 
         try {
             VirtualMachineEntity vmEntity = _orchSrvc.getVirtualMachine(vm.getUuid());
-            status = vmEntity.stop(new Long(userId).toString());            
+            status = vmEntity.stop(new Long(userId).toString());
         } catch (ResourceUnavailableException e) {
             s_logger.debug("Unable to stop due to ", e);
             status = false;
@@ -1833,7 +1841,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
 
     @Override
     public UserVm createBasicSecurityGroupVirtualMachine(DataCenter zone, ServiceOffering serviceOffering, VirtualMachineTemplate template, List<Long> securityGroupIdList, Account owner,
-            String hostName, String displayName, Long diskOfferingId, Long diskSize, String group, HypervisorType hypervisor, String userData, String sshKeyPair, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps, String keyboard)
+ String hostName,
+            String displayName, Long diskOfferingId, Long diskSize, String group, HypervisorType hypervisor,
+            String userData, String sshKeyPair, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps,
+            String keyboard, List<Long> affinityGroupIdList)
                     throws InsufficientCapacityException, ConcurrentOperationException, ResourceUnavailableException, StorageUnavailableException, ResourceAllocationException {
 
         Account caller = UserContext.current().getCaller();
@@ -1883,13 +1894,17 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
         }
 
         return createVirtualMachine(zone, serviceOffering, template, hostName, displayName, owner, diskOfferingId,
-                diskSize, networkList, securityGroupIdList, group, userData, sshKeyPair, hypervisor, caller, requestedIps, defaultIps, keyboard);
+                diskSize, networkList, securityGroupIdList, group, userData, sshKeyPair, hypervisor, caller,
+                requestedIps, defaultIps, keyboard, affinityGroupIdList);
     }
 
     @Override
     public UserVm createAdvancedSecurityGroupVirtualMachine(DataCenter zone, ServiceOffering serviceOffering, VirtualMachineTemplate template, List<Long> networkIdList,
             List<Long> securityGroupIdList, Account owner, String hostName, String displayName, Long diskOfferingId, Long diskSize, String group, HypervisorType hypervisor, String userData,
-            String sshKeyPair, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps, String keyboard) throws InsufficientCapacityException, ConcurrentOperationException, ResourceUnavailableException, StorageUnavailableException,
+ String sshKeyPair, Map<Long, IpAddresses> requestedIps,
+            IpAddresses defaultIps, String keyboard, List<Long> affinityGroupIdList)
+            throws InsufficientCapacityException, ConcurrentOperationException, ResourceUnavailableException,
+            StorageUnavailableException,
             ResourceAllocationException {
 
         Account caller = UserContext.current().getCaller();
@@ -1935,7 +1950,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
             isSecurityGroupEnabledNetworkUsed = true;
 
         } else {
-            // Verify that all the networks are Shared/Guest; can't create combination of SG enabled and disabled networks 
+            // Verify that all the networks are Shared/Guest; can't create combination of SG enabled and disabled networks
             for (Long networkId : networkIdList) {
                 NetworkVO network = _networkDao.findById(networkId);
 
@@ -1951,7 +1966,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
                     }
 
                     isSecurityGroupEnabledNetworkUsed = true;
-                }            
+                }
 
                 if (!(network.getTrafficType() == TrafficType.Guest && network.getGuestType() == Network.GuestType.Shared)) {
                     throw new InvalidParameterValueException("Can specify only Shared Guest networks when" +
@@ -1996,12 +2011,15 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
         }
 
         return createVirtualMachine(zone, serviceOffering, template, hostName, displayName, owner, diskOfferingId,
-                diskSize, networkList, securityGroupIdList, group, userData, sshKeyPair, hypervisor, caller, requestedIps, defaultIps, keyboard);
+                diskSize, networkList, securityGroupIdList, group, userData, sshKeyPair, hypervisor, caller,
+                requestedIps, defaultIps, keyboard, affinityGroupIdList);
     }
 
     @Override
     public UserVm createAdvancedVirtualMachine(DataCenter zone, ServiceOffering serviceOffering, VirtualMachineTemplate template, List<Long> networkIdList, Account owner, String hostName,
-            String displayName, Long diskOfferingId, Long diskSize, String group, HypervisorType hypervisor, String userData, String sshKeyPair, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps, String keyboard)
+            String displayName, Long diskOfferingId, Long diskSize, String group, HypervisorType hypervisor,
+            String userData, String sshKeyPair, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps,
+            String keyboard, List<Long> affinityGroupIdList)
                     throws InsufficientCapacityException, ConcurrentOperationException, ResourceUnavailableException, StorageUnavailableException, ResourceAllocationException {
 
         Account caller = UserContext.current().getCaller();
@@ -2109,7 +2127,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
             }
         }
 
-        return createVirtualMachine(zone, serviceOffering, template, hostName, displayName, owner, diskOfferingId, diskSize, networkList, null, group, userData, sshKeyPair, hypervisor, caller, requestedIps, defaultIps, keyboard);
+        return createVirtualMachine(zone, serviceOffering, template, hostName, displayName, owner, diskOfferingId,
+                diskSize, networkList, null, group, userData, sshKeyPair, hypervisor, caller, requestedIps, defaultIps,
+                keyboard, affinityGroupIdList);
     }
 
 
@@ -2122,7 +2142,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
 
     @DB @ActionEvent(eventType = EventTypes.EVENT_VM_CREATE, eventDescription = "deploying Vm", create = true)
     protected UserVm createVirtualMachine(DataCenter zone, ServiceOffering serviceOffering, VirtualMachineTemplate template, String hostName, String displayName, Account owner, Long diskOfferingId,
-            Long diskSize, List<NetworkVO> networkList, List<Long> securityGroupIdList, String group, String userData, String sshKeyPair, HypervisorType hypervisor, Account caller, Map<Long, IpAddresses> requestedIps, IpAddresses defaultIps, String keyboard)
+            Long diskSize, List<NetworkVO> networkList, List<Long> securityGroupIdList, String group, String userData,
+            String sshKeyPair, HypervisorType hypervisor, Account caller, Map<Long, IpAddresses> requestedIps,
+            IpAddresses defaultIps, String keyboard, List<Long> affinityGroupIdList)
                     throws InsufficientCapacityException, ResourceUnavailableException, ConcurrentOperationException, StorageUnavailableException, ResourceAllocationException {
 
         _accountMgr.checkAccess(caller, null, true, owner);
@@ -2175,6 +2197,14 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
                     // verify permissions
                     _accountMgr.checkAccess(caller, null, true, owner, sg);
                 }
+            }
+        }
+
+        // check that the affinity groups exist
+        for (Long affinityGroupId : affinityGroupIdList) {
+            AffinityGroupVO ag = _affinityGroupDao.findById(affinityGroupId);
+            if (ag == null) {
+                throw new InvalidParameterValueException("Unable to find affinity group by id " + affinityGroupId);
             }
         }
 
@@ -2355,7 +2385,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
                     // * verify that there are no duplicates
                     if (hostNames.contains(hostName)) {
                         throw new InvalidParameterValueException("The vm with hostName " + hostName
-                                + " already exists in the network domain: " + ntwkDomain + "; network=" 
+                                + " already exists in the network domain: " + ntwkDomain + "; network="
                                 + _networkModel.getNetwork(ntwkId));
                     }
                 }
@@ -2418,7 +2448,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
         List<String> computeTags = new ArrayList<String>();
         computeTags.add(offering.getHostTag());
 
-        List<String> rootDiskTags =	new ArrayList<String>();    	
+        List<String> rootDiskTags =	new ArrayList<String>();
         rootDiskTags.add(offering.getTags());
 
         if(isIso){
@@ -2459,6 +2489,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
         }
 
         _securityGroupMgr.addInstanceToGroups(vm.getId(), securityGroupIdList);
+
+        _affinityGroupVMMapDao.updateMap(vm.getId(), affinityGroupIdList);
 
         return vm;
     }
@@ -2737,7 +2769,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
 
         try {
             VirtualMachineEntity vmEntity = _orchSrvc.getVirtualMachine(vm.getUuid());
-            vmEntity.stop(new Long(userId).toString());            
+            vmEntity.stop(new Long(userId).toString());
         } catch (ResourceUnavailableException e) {
             throw new CloudRuntimeException(
                     "Unable to contact the agent to stop the virtual machine "
@@ -2952,7 +2984,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Use
 
         try {
             VirtualMachineEntity vmEntity = _orchSrvc.getVirtualMachine(vm.getUuid());
-            status = vmEntity.destroy(new Long(userId).toString());    
+            status = vmEntity.destroy(new Long(userId).toString());
         } catch (CloudException e) {
             CloudRuntimeException ex = new CloudRuntimeException(
                     "Unable to destroy with specified vmId", e);

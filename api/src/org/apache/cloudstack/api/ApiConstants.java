@@ -454,6 +454,8 @@ public class ApiConstants {
     public static final String GUEST_VM_CIDR = "guestvmcidr";
     public static final String NETWORK_CIDR = "networkcidr";
     public static final String RESERVED_IP_RANGE = "reservediprange";
+    public static final String AFFINITY_GROUP_IDS = "affinitygroupids";
+    public static final String AFFINITY_GROUP_NAMES = "affinitygroupnames";
 
     public enum HostDetails {
         all, capacity, events, stats, min;
