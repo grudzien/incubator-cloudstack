@@ -14,15 +14,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package com.cloud.storage.dao;
+package com.cloud.network.lb;
 
-import java.util.Map;
 
-import com.cloud.storage.StoragePoolDetailVO;
-import com.cloud.utils.db.GenericDao;
+public interface LBHealthCheckManager {
 
-public interface StoragePoolDetailsDao extends GenericDao<StoragePoolDetailVO, Long> {
-    
-    void update(long poolId, Map<String, String> details);
-    Map<String, String> getDetails(long poolId);
+    void updateLBHealthCheck();
+
 }

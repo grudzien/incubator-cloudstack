@@ -1,4 +1,3 @@
-#!/bin/sh
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,18 +15,15 @@
 # specific language governing permissions and limitations
 # under the License.
 
-set -x
+# usage database settings
+db.usage.username=@DBUSER@
+db.usage.password=@DBPW@
+db.usage.host=@DBHOST@
+db.usage.port=3306
+db.usage.name=cloud_usage
 
-vmname=$1
-key=$2
-value=$3
-uuid=`xe vm-list name-label=$vmname | grep uuid | awk '{print $NF}'`
-if [[ $key == "weight" ]]
-then
-    xe vm-param-set VCPUs-params:weight=$value uuid=$uuid
-fi
-if [[ $key == "cap" ]]
-then
-    xe vm-param-set VCPUs-params:cap=$value uuid=$uuid
-fi
-
+# usage database tuning parameters
+db.usage.maxActive=100
+db.usage.maxIdle=30
+db.usage.maxWait=10000
+db.usage.autoReconnect=true

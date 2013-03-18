@@ -14,22 +14,22 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package org.apache.cloudstack.region.dao;
+package com.cloud.network.dao;
 
-import javax.ejb.Local;
+import java.util.List;
 
-import org.apache.cloudstack.region.RegionSyncVO;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
+import com.cloud.network.LBHealthCheckPolicyVO;
+import com.cloud.utils.db.GenericDao;
 
-import com.cloud.utils.db.GenericDaoBase;
 
-@Component
-@Local(value={RegionSyncDao.class})
-public class RegionSyncDaoImpl extends GenericDaoBase<RegionSyncVO, Integer> implements RegionSyncDao {
-    private static final Logger s_logger = Logger.getLogger(RegionSyncDaoImpl.class);
-    
-    public RegionSyncDaoImpl(){
-    	
-    }
+public interface LBHealthCheckPolicyDao extends
+        GenericDao<LBHealthCheckPolicyVO, Long> {
+    void remove(long loadBalancerId);
+
+    void remove(long loadBalancerId, Boolean pending);
+
+    List<LBHealthCheckPolicyVO> listByLoadBalancerId(long loadBalancerId);
+
+    List<LBHealthCheckPolicyVO> listByLoadBalancerId(long loadBalancerId,
+            boolean revoke);
 }

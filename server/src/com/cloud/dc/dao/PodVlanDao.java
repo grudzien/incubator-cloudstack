@@ -14,11 +14,17 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package org.apache.cloudstack.region.dao;
+package com.cloud.dc.dao;
 
-import org.apache.cloudstack.region.RegionSyncVO;
+import java.util.List;
 
+import com.cloud.dc.PodVlanVO;
 import com.cloud.utils.db.GenericDao;
 
-public interface RegionSyncDao extends GenericDao<RegionSyncVO, Integer> {
+public interface PodVlanDao extends GenericDao<PodVlanVO, Long> {
+    public List<PodVlanVO> listAllocatedVnets(long podId);    
+    public void add(long podId, int start, int end);   
+    public void delete(long podId);
+    public PodVlanVO take(long podId, long accountId);
+    public void release(String vlan, long podId, long accountId);
 }

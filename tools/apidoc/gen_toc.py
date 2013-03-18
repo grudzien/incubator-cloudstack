@@ -133,6 +133,9 @@ known_categories = {
     'Api': 'API Discovery',
     'Simulator': 'Simulator',
     'Region': 'Region',
+    'addIpToNic': 'Nic',
+    'removeIpFromNic': 'Nic',
+    'listNics':'Nic',
     }
 
 
