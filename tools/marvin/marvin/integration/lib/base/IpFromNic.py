@@ -15,20 +15,18 @@
 # specific language governing permissions and limitations
 # under the License.
 from marvin.integration.lib.base import CloudStackEntity
-from marvin.cloudstackAPI import createSnapshotPolicy
+from marvin.cloudstackAPI import removeIpFromNic
 
-class SnapshotPolicy(CloudStackEntity):
+class IpFromNic(CloudStackEntity):
 
 
     def __init__(self, items):
         self.__dict__.update(items)
 
 
-    @classmethod
-    def create(cls, apiclient, SnapshotPolicyFactory, **kwargs):
-        cmd = createSnapshotPolicy.createSnapshotPolicyCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in SnapshotPolicyFactory.__dict__.iteritems()]
-        [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
-        snapshotpolicy = apiclient.createSnapshotPolicy(cmd)
-        return SnapshotPolicy(snapshotpolicy.__dict__)
+    def remove(self, apiclient, id, **kwargs):
+        cmd = removeIpFromNic.removeIpFromNicCmd()
+        cmd.id = id
+        [setattr(cmd, key, value) for key,value in kwargs.items]
+        ipfromnic = apiclient.removeIpFromNic(cmd)
 

@@ -15,11 +15,11 @@
 # specific language governing permissions and limitations
 # under the License.
 from marvin.integration.lib.base import CloudStackEntity
-from marvin.cloudstackAPI import createIpForwardingRule
-from marvin.cloudstackAPI import listIpForwardingRules
-from marvin.cloudstackAPI import deleteIpForwardingRule
+from marvin.cloudstackAPI import createVMSnapshot
+from marvin.cloudstackAPI import listVMSnapshot
+from marvin.cloudstackAPI import deleteVMSnapshot
 
-class IpForwardingRule(CloudStackEntity):
+class VMSnapshot(CloudStackEntity):
 
 
     def __init__(self, items):
@@ -27,25 +27,25 @@ class IpForwardingRule(CloudStackEntity):
 
 
     @classmethod
-    def create(cls, apiclient, IpForwardingRuleFactory, **kwargs):
-        cmd = createIpForwardingRule.createIpForwardingRuleCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in IpForwardingRuleFactory.__dict__.iteritems()]
+    def create(cls, apiclient, VMSnapshotFactory, **kwargs):
+        cmd = createVMSnapshot.createVMSnapshotCmd()
+        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in VMSnapshotFactory.__dict__.iteritems()]
         [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
-        ipforwardingrule = apiclient.createIpForwardingRule(cmd)
-        return IpForwardingRule(ipforwardingrule.__dict__)
+        vmsnapshot = apiclient.createVMSnapshot(cmd)
+        return VMSnapshot(vmsnapshot.__dict__)
 
 
     @classmethod
     def list(self, apiclient, **kwargs):
-        cmd = listIpForwardingRules.listIpForwardingRulesCmd()
+        cmd = listVMSnapshot.listVMSnapshotCmd()
         [setattr(cmd, key, value) for key,value in kwargs.items]
-        ipforwardingrule = apiclient.listIpForwardingRules(cmd)
-        return map(lambda e: IpForwardingRule(e.__dict__), ipforwardingrule)
+        vmsnapshot = apiclient.listVMSnapshot(cmd)
+        return map(lambda e: VMSnapshot(e.__dict__), vmsnapshot)
 
 
-    def delete(self, apiclient, id, **kwargs):
-        cmd = deleteIpForwardingRule.deleteIpForwardingRuleCmd()
-        cmd.id = id
+    def delete(self, apiclient, vmsnapshotid, **kwargs):
+        cmd = deleteVMSnapshot.deleteVMSnapshotCmd()
+        cmd.vmsnapshotid = vmsnapshotid
         [setattr(cmd, key, value) for key,value in kwargs.items]
-        ipforwardingrule = apiclient.deleteIpForwardingRule(cmd)
+        vmsnapshot = apiclient.deleteVMSnapshot(cmd)
 

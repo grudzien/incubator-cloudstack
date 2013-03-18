@@ -15,37 +15,36 @@
 # specific language governing permissions and limitations
 # under the License.
 from marvin.integration.lib.base import CloudStackEntity
-from marvin.cloudstackAPI import createIpForwardingRule
-from marvin.cloudstackAPI import listIpForwardingRules
-from marvin.cloudstackAPI import deleteIpForwardingRule
+from marvin.cloudstackAPI import addBigSwitchVnsDevice
+from marvin.cloudstackAPI import listBigSwitchVnsDevices
+from marvin.cloudstackAPI import deleteBigSwitchVnsDevice
 
-class IpForwardingRule(CloudStackEntity):
+class BigSwitchVnsDevice(CloudStackEntity):
 
 
     def __init__(self, items):
         self.__dict__.update(items)
 
 
-    @classmethod
-    def create(cls, apiclient, IpForwardingRuleFactory, **kwargs):
-        cmd = createIpForwardingRule.createIpForwardingRuleCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in IpForwardingRuleFactory.__dict__.iteritems()]
-        [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
-        ipforwardingrule = apiclient.createIpForwardingRule(cmd)
-        return IpForwardingRule(ipforwardingrule.__dict__)
+    def add(self, apiclient, physicalnetworkid, hostname, **kwargs):
+        cmd = addBigSwitchVnsDevice.addBigSwitchVnsDeviceCmd()
+        cmd.hostname = hostname
+        cmd.physicalnetworkid = physicalnetworkid
+        [setattr(cmd, key, value) for key,value in kwargs.items]
+        bigswitchvnsdevice = apiclient.addBigSwitchVnsDevice(cmd)
 
 
     @classmethod
     def list(self, apiclient, **kwargs):
-        cmd = listIpForwardingRules.listIpForwardingRulesCmd()
+        cmd = listBigSwitchVnsDevices.listBigSwitchVnsDevicesCmd()
         [setattr(cmd, key, value) for key,value in kwargs.items]
-        ipforwardingrule = apiclient.listIpForwardingRules(cmd)
-        return map(lambda e: IpForwardingRule(e.__dict__), ipforwardingrule)
+        bigswitchvnsdevice = apiclient.listBigSwitchVnsDevices(cmd)
+        return map(lambda e: BigSwitchVnsDevice(e.__dict__), bigswitchvnsdevice)
 
 
-    def delete(self, apiclient, id, **kwargs):
-        cmd = deleteIpForwardingRule.deleteIpForwardingRuleCmd()
-        cmd.id = id
+    def delete(self, apiclient, vnsdeviceid, **kwargs):
+        cmd = deleteBigSwitchVnsDevice.deleteBigSwitchVnsDeviceCmd()
+        cmd.vnsdeviceid = vnsdeviceid
         [setattr(cmd, key, value) for key,value in kwargs.items]
-        ipforwardingrule = apiclient.deleteIpForwardingRule(cmd)
+        bigswitchvnsdevice = apiclient.deleteBigSwitchVnsDevice(cmd)
 

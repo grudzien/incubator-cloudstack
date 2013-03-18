@@ -15,20 +15,18 @@
 # specific language governing permissions and limitations
 # under the License.
 from marvin.integration.lib.base import CloudStackEntity
-from marvin.cloudstackAPI import createSnapshotPolicy
+from marvin.cloudstackAPI import addIpToNic
 
-class SnapshotPolicy(CloudStackEntity):
+class IpToNic(CloudStackEntity):
 
 
     def __init__(self, items):
         self.__dict__.update(items)
 
 
-    @classmethod
-    def create(cls, apiclient, SnapshotPolicyFactory, **kwargs):
-        cmd = createSnapshotPolicy.createSnapshotPolicyCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in SnapshotPolicyFactory.__dict__.iteritems()]
-        [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
-        snapshotpolicy = apiclient.createSnapshotPolicy(cmd)
-        return SnapshotPolicy(snapshotpolicy.__dict__)
+    def add(self, apiclient, nicid, **kwargs):
+        cmd = addIpToNic.addIpToNicCmd()
+        cmd.nicid = nicid
+        [setattr(cmd, key, value) for key,value in kwargs.items]
+        iptonic = apiclient.addIpToNic(cmd)
 

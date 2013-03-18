@@ -29,8 +29,8 @@ class AutoScalePolicy(CloudStackEntity):
     @classmethod
     def create(cls, apiclient, AutoScalePolicyFactory, **kwargs):
         cmd = createAutoScalePolicy.createAutoScalePolicyCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in AutoScalePolicyFactory.attributes()]
-        [setattr(cmd, key, value) for key,value in kwargs.items]
+        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in AutoScalePolicyFactory.__dict__.iteritems()]
+        [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
         autoscalepolicy = apiclient.createAutoScalePolicy(cmd)
         return AutoScalePolicy(autoscalepolicy.__dict__)
 

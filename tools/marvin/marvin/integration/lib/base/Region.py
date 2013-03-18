@@ -15,37 +15,45 @@
 # specific language governing permissions and limitations
 # under the License.
 from marvin.integration.lib.base import CloudStackEntity
-from marvin.cloudstackAPI import createIpForwardingRule
-from marvin.cloudstackAPI import listIpForwardingRules
-from marvin.cloudstackAPI import deleteIpForwardingRule
+from marvin.cloudstackAPI import addRegion
+from marvin.cloudstackAPI import listRegions
+from marvin.cloudstackAPI import updateRegion
+from marvin.cloudstackAPI import removeRegion
 
-class IpForwardingRule(CloudStackEntity):
+class Region(CloudStackEntity):
 
 
     def __init__(self, items):
         self.__dict__.update(items)
 
 
-    @classmethod
-    def create(cls, apiclient, IpForwardingRuleFactory, **kwargs):
-        cmd = createIpForwardingRule.createIpForwardingRuleCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in IpForwardingRuleFactory.__dict__.iteritems()]
-        [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
-        ipforwardingrule = apiclient.createIpForwardingRule(cmd)
-        return IpForwardingRule(ipforwardingrule.__dict__)
+    def add(self, apiclient, endpoint, id, name, **kwargs):
+        cmd = addRegion.addRegionCmd()
+        cmd.id = id
+        cmd.endpoint = endpoint
+        cmd.name = name
+        [setattr(cmd, key, value) for key,value in kwargs.items]
+        region = apiclient.addRegion(cmd)
 
 
     @classmethod
     def list(self, apiclient, **kwargs):
-        cmd = listIpForwardingRules.listIpForwardingRulesCmd()
+        cmd = listRegions.listRegionsCmd()
         [setattr(cmd, key, value) for key,value in kwargs.items]
-        ipforwardingrule = apiclient.listIpForwardingRules(cmd)
-        return map(lambda e: IpForwardingRule(e.__dict__), ipforwardingrule)
+        region = apiclient.listRegions(cmd)
+        return map(lambda e: Region(e.__dict__), region)
 
 
-    def delete(self, apiclient, id, **kwargs):
-        cmd = deleteIpForwardingRule.deleteIpForwardingRuleCmd()
+    def update(self, apiclient, id, **kwargs):
+        cmd = updateRegion.updateRegionCmd()
         cmd.id = id
         [setattr(cmd, key, value) for key,value in kwargs.items]
-        ipforwardingrule = apiclient.deleteIpForwardingRule(cmd)
+        region = apiclient.updateRegion(cmd)
+
+
+    def remove(self, apiclient, id, **kwargs):
+        cmd = removeRegion.removeRegionCmd()
+        cmd.id = id
+        [setattr(cmd, key, value) for key,value in kwargs.items]
+        region = apiclient.removeRegion(cmd)
 

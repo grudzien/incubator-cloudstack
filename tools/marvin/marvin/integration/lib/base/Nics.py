@@ -15,9 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 from marvin.integration.lib.base import CloudStackEntity
-from marvin.cloudstackAPI import createSnapshotPolicy
+from marvin.cloudstackAPI import listNics
 
-class SnapshotPolicy(CloudStackEntity):
+class Nics(CloudStackEntity):
 
 
     def __init__(self, items):
@@ -25,10 +25,10 @@ class SnapshotPolicy(CloudStackEntity):
 
 
     @classmethod
-    def create(cls, apiclient, SnapshotPolicyFactory, **kwargs):
-        cmd = createSnapshotPolicy.createSnapshotPolicyCmd()
-        [setattr(cmd, factoryKey, factoryValue) for factoryKey, factoryValue in SnapshotPolicyFactory.__dict__.iteritems()]
-        [setattr(cmd, key, value) for key,value in kwargs.iteritems()]
-        snapshotpolicy = apiclient.createSnapshotPolicy(cmd)
-        return SnapshotPolicy(snapshotpolicy.__dict__)
+    def list(self, apiclient, virtualmachineid, **kwargs):
+        cmd = listNics.listNicsCmd()
+        cmd.virtualmachineid = virtualmachineid
+        [setattr(cmd, key, value) for key,value in kwargs.items]
+        nics = apiclient.listNics(cmd)
+        return map(lambda e: Nics(e.__dict__), nics)
 
