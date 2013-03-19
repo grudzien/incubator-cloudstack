@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--load", dest="load", action="store_true",
         help="only load config, do not deploy, it will only run testcase")
 
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
     testResultLogFile = None
     if options.result is not None:
