@@ -236,7 +236,7 @@ rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/webapps/client/WEB-INF/cl
 rm -rf ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/webapps/client/WEB-INF/classes/vms
 
 for name in db.properties log4j-cloud.xml tomcat6-nonssl.conf tomcat6-ssl.conf server-ssl.xml server-nonssl.xml \
-            catalina.policy catalina.properties db-enc.properties classpath.conf tomcat-users.xml web.xml environment.properties ; do
+            catalina.policy catalina.properties classpath.conf tomcat-users.xml web.xml environment.properties ; do
   mv ${RPM_BUILD_ROOT}%{_datadir}/%{name}-management/webapps/client/WEB-INF/classes/$name \
     ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/management/$name
 done
@@ -396,6 +396,13 @@ if [ -L $oldtomcatconf ] ; then
     fi
 fi
 
+%preun agent
+/sbin/service cloudstack-agent stop || true
+if [ "$1" == "0" ] ; then
+    /sbin/chkconfig --del cloudstack-agent > /dev/null 2>&1 || true
+    /sbin/service cloudstack-agent stop > /dev/null 2>&1 || true
+fi
+
 %pre agent
 
 # save old configs if they exist (for upgrade). Otherwise we may lose them
@@ -405,6 +412,10 @@ if [ -d "%{_sysconfdir}/cloud" ] ; then
 fi
 
 %post agent
+if [ "$1" == "1" ] ; then
+    /sbin/chkconfig --add cloudstack-agent > /dev/null 2>&1 || true
+    /sbin/chkconfig --level 345 cloudstack-agent on > /dev/null 2>&1 || true
+fi
 
 # if saved configs from upgrade exist, copy them over
 if [ -f "%{_sysconfdir}/cloud.rpmsave/agent/agent.properties" ]; then
